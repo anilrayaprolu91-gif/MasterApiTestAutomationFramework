@@ -1,0 +1,41 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  TestNG Suite Configuration — Master API Test Automation Framework
+
+  Parallelism strategy: parallel="methods" with thread-count="4"
+    - Each @Test method may execute on a different thread simultaneously.
+    - Test classes are designed to be stateless so parallel execution is safe.
+    - The AllureRestAssured filter uses ThreadLocal internally, keeping per-thread
+      attachments isolated in Allure reports.
+
+  To run serially (e.g. during debugging): set parallel="none".
+  To run only a subset: add groups="smoke" to the <suite> element and tag your
+  tests with @Test(groups = "smoke").
+-->
+<suite name="Master API Test Automation Suite"
+       parallel="methods"
+       thread-count="4"
+       verbose="2"
+       data-provider-thread-count="4">
+
+    <!-- Framework lifecycle listener for structured logging (Log4j2) -->
+    <listeners>
+        <listener class-name="com.api.framework.listeners.TestNGListener"/>
+    </listeners>
+
+    <!-- ── JSON / REST Tests ──────────────────────────────────────────────── -->
+    <test name="JSON API Validation Tests" preserve-order="false">
+        <classes>
+            <class name="com.api.framework.tests.JsonValidationTest"/>
+        </classes>
+    </test>
+
+    <!-- ── XML / SOAP Tests ──────────────────────────────────────────────── -->
+    <test name="XML SOAP Validation Tests" preserve-order="false">
+        <classes>
+            <class name="com.api.framework.tests.XmlValidationTest"/>
+        </classes>
+    </test>
+
+</suite>
+

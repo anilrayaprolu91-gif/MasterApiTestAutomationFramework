@@ -1,0 +1,23 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  Serial TestNG suite dedicated to the public Restful Booker API.
+  This suite is intentionally non-parallel to reduce flaky behavior on the
+  shared demo service and to keep the booking lifecycle deterministic.
+-->
+<suite name="Restful Booker Serial Suite"
+       parallel="none"
+       verbose="2">
+
+    <listeners>
+        <listener class-name="com.api.framework.listeners.TestNGListener"/>
+    </listeners>
+
+    <test name="Restful Booker API Validation Tests" preserve-order="true">
+        <classes>
+            <class name="com.api.framework.tests.RestfulBookerApiTest"/>
+            <class name="com.api.framework.tests.RestfulBookerE2ETest"/>
+        </classes>
+    </test>
+
+</suite>
+

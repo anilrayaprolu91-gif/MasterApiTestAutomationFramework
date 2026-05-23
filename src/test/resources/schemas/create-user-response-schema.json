@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CreateUserResponse",
+  "description": "JSON Schema for the POST /api/users 201 Created response from reqres.in",
+  "type": "object",
+  "required": ["name", "job", "id", "createdAt"],
+  "additionalProperties": true,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name echoed back from the request body"
+    },
+    "job": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Job title echoed back from the request body"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Server-generated unique identifier for the newly created user"
+    },
+    "createdAt": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ISO-8601 UTC timestamp of when the resource was created"
+    }
+  }
+}
+

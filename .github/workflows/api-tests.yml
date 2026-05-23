@@ -1,0 +1,156 @@
+# =============================================================================
+#  GitHub Actions — Master API Test Automation Framework
+#
+#  Triggers   : push or pull_request on any branch
+#  JDK        : Temurin (Eclipse) 17 (LTS)
+#  Test runner: Maven + TestNG (parallel mode, thread-count=4)
+#  Reporting  : Allure Report published to GitHub Pages (gh-pages branch)
+#
+#  Secrets expected (optional — for future authenticated endpoint tests):
+#    API_KEY : any API key needed by target services
+# =============================================================================
+
+name: API Test Automation
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ main, develop ]
+  # Allow manual runs from the Actions tab with optional parameters
+  workflow_dispatch:
+    inputs:
+      thread_count:
+        description: "Parallel thread count (overrides testng.xml)"
+        required: false
+        default: "4"
+
+# Cancel in-progress runs for the same branch to save compute minutes
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  #  BUILD & TEST
+  # ---------------------------------------------------------------------------
+  api-tests:
+    name: Run API Tests (Java ${{ matrix.java }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ 17 ]   # Extend to [17, 21] for cross-version compatibility checks
+
+    steps:
+      # 1. Checkout source
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Required for Allure trend history comparison
+
+      # 2. Set up JDK
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: temurin
+          cache: maven
+
+      # 3. Maven build + test
+      #    -B           : batch mode (no interactive prompts)
+      #    -V           : print Maven version for reproducibility audit
+      #    --no-transfer-progress : suppress noisy download bars in CI logs
+      - name: Build and run API tests
+        run: |
+          mvn -B -V --no-transfer-progress test
+        env:
+          # Expose GitHub token for any future API rate-limiting workarounds
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 4. Save Allure raw results even when tests fail so we can generate reports
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-java-${{ matrix.java }}
+          path: target/allure-results
+          retention-days: 30
+
+      # 5. Upload test logs for debugging flaky tests
+      - name: Upload log files
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-logs-java-${{ matrix.java }}
+          path: target/logs
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  #  ALLURE REPORT PUBLISH (main branch only)
+  # ---------------------------------------------------------------------------
+  publish-report:
+    name: Publish Allure Report to GitHub Pages
+    runs-on: ubuntu-latest
+    # Only publish from the main branch after tests complete
+    needs: api-tests
+    if: github.ref == 'refs/heads/main' && always()
+
+    # Required permissions for GitHub Pages deployment
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Restore the previous gh-pages history so Allure can render trend graphs
+      - name: Load previous Allure report history
+        uses: actions/checkout@v4
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      # Download the raw results uploaded in the test job
+      - name: Download Allure results artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results-java-17
+          path: target/allure-results
+
+      # Copy Allure history from previous run so trend charts populate
+      - name: Copy Allure history
+        run: |
+          if [ -d "gh-pages/history" ]; then
+            cp -r gh-pages/history target/allure-results/history
+            echo "Allure history restored from gh-pages branch."
+          else
+            echo "No previous history found — first run, trend graphs will be empty."
+          fi
+
+      # Generate the static Allure HTML report
+      - name: Generate Allure HTML report
+        uses: simple-elf/allure-report-action@v1.9
+        with:
+          allure_results: target/allure-results
+          allure_report: target/allure-report
+          gh_pages: gh-pages
+          allure_history: allure-history
+          keep_reports: 20   # Retain the last 20 historical runs for trend data
+
+      # Deploy the generated report to GitHub Pages
+      - name: Deploy Allure report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
+          commit_message: "ci: publish Allure report for ${{ github.sha }}"
+

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Log4j2 configuration for the Master API Test Automation Framework.
+
+  Appenders:
+    ConsoleAppender — writes INFO+ to stdout; always active.
+    FileAppender    — rolling file in target/logs; preserves full debug trace
+                      for post-run analysis without polluting CI console output.
+
+  Logger hierarchy:
+    com.api.framework — DEBUG level; captures internal framework diagnostics.
+    io.restassured    — INFO level; REST Assured already logs via its own filter.
+    Root              — INFO level fallback.
+-->
+<Configuration status="WARN" monitorInterval="30">
+
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%highlight{%-5level}] [%t] %logger{36} - %msg%n</Property>
+        <Property name="LOG_DIR">target/logs</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}" disableAnsi="false"/>
+        </Console>
+
+        <RollingFile name="FileAppender"
+                     fileName="${LOG_DIR}/api-tests.log"
+                     filePattern="${LOG_DIR}/api-tests-%d{yyyy-MM-dd}-%i.log.gz"
+                     createOnDemand="true">
+            <PatternLayout pattern="${LOG_PATTERN}" disableAnsi="true"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- Framework internal logger — verbose for debugging -->
+        <Logger name="com.api.framework" level="DEBUG" additivity="false">
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="FileAppender"/>
+        </Logger>
+
+        <!-- REST Assured internal — INFO is sufficient; DEBUG floods logs -->
+        <Logger name="io.restassured" level="INFO" additivity="false">
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="FileAppender"/>
+        </Logger>
+
+        <!-- Apache HTTP client underneath REST Assured -->
+        <Logger name="org.apache.http" level="WARN" additivity="false">
+            <AppenderRef ref="ConsoleAppender"/>
+        </Logger>
+
+        <!-- Default for any library not explicitly configured above -->
+        <Root level="INFO">
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="FileAppender"/>
+        </Root>
+    </Loggers>
+
+</Configuration>
+

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  XSD Schema  : NumberToWordsResponse
+  Namespace   : http://www.dataaccess.com/webservicesserver/
+  Service     : https://www.dataaccess.com/webservicesserver/NumberConversion.wso
+
+  Validates the SOAP Body content extracted from the NumberConversion response.
+  The outer SOAP Envelope/Body wrappers are stripped by
+  XmlSchemaValidator.extractSoapBodyContent() before this schema is applied.
+
+  Expected fragment:
+    <m:NumberToWordsResponse xmlns:m="http://www.dataaccess.com/webservicesserver/">
+      <m:NumberToWordsResult>five hundred </m:NumberToWordsResult>
+    </m:NumberToWordsResponse>
+-->
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.dataaccess.com/webservicesserver/"
+        xmlns:tns="http://www.dataaccess.com/webservicesserver/"
+        elementFormDefault="qualified">
+
+    <!--
+      Root validated element.
+      Contains exactly one NumberToWordsResult child with a string value.
+      The value is not constrained here — content assertions are done in the test layer.
+    -->
+    <xs:element name="NumberToWordsResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="NumberToWordsResult" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

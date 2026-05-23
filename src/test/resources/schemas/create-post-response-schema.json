@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CreatePostResponse — JSONPlaceholder",
+  "description": "JSON Schema for the POST /posts 201 Created response from jsonplaceholder.typicode.com",
+  "type": "object",
+  "required": ["id", "title", "body", "userId"],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Server-generated unique identifier for the new post"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Post title echoed from the request"
+    },
+    "body": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Post body echoed from the request"
+    },
+    "userId": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Author user ID echoed from the request"
+    }
+  }
+}
+
