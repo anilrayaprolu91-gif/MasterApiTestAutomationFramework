@@ -14,13 +14,8 @@ import org.apache.logging.log4j.Logger;
 /**
  * Abstract base for all API clients in this framework.
  *
- * <p>Centralises the construction of a {@link RequestSpecification} so that
- * every concrete client inherits a consistent baseline: base URI, default
- * content-type, timeout constants, and the Allure logging filter.
- *
- * <p>Subclasses call {@link #getBaseSpec()} to obtain a pre-configured spec
- * and then layer their own endpoint-specific settings on top via
- * {@code RestAssured.given(spec)}.
+ * <p>Centralises the construction of a RequestSpecification so that every
+ * concrete client inherits the same baseline HTTP configuration.
  */
 public abstract class BaseApiClient {
 
@@ -29,9 +24,9 @@ public abstract class BaseApiClient {
     private final RequestSpecification baseSpec;
 
     /**
-     * Constructs the shared {@link RequestSpecification} for a given base URI key.
+     * Constructs the shared RequestSpecification for a given base URI key.
      *
-     * @param baseUriConfigKey the key in {@code config.properties} that holds the base URI
+     * @param baseUriConfigKey the key in config.properties that holds the base URI
      */
     protected BaseApiClient(String baseUriConfigKey) {
         String baseUri = ConfigManager.getInstance().getProperty(baseUriConfigKey);
@@ -39,10 +34,13 @@ public abstract class BaseApiClient {
 
         baseSpec = new RequestSpecBuilder()
                 .setBaseUri(baseUri)
+                // Restful Booker performs content negotiation from the Accept header.
+                // Keeping the default response type explicitly JSON prevents a 418
+                // content-negotiation failure when a client does not override it.
                 .setContentType(ContentType.JSON)
-                .addHeader("User-Agent", "Mozilla/5.0")
-                .setRelaxedHTTPSValidation()               // Trust all SSL certs — fine for test environments.
-                .addFilter(new AllureRestAssured())         // Captures full req/resp into Allure attachments.
+                .setAccept(ContentType.JSON)
+                .setRelaxedHTTPSValidation()
+                .addFilter(new AllureRestAssured())
                 .addFilter(new RequestLoggingFilter(LogDetail.ALL))
                 .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
                 .build();
@@ -51,12 +49,10 @@ public abstract class BaseApiClient {
     }
 
     /**
-     * Returns the immutable baseline {@link RequestSpecification}.
-     * Concrete clients must NEVER mutate this object; they should merge it via
-     * {@code RestAssured.given(getBaseSpec())}.
+     * Returns the baseline RequestSpecification.
+     * Concrete clients should merge it with RestAssured.given(getBaseSpec()).
      */
     protected RequestSpecification getBaseSpec() {
         return baseSpec;
     }
 }
-
