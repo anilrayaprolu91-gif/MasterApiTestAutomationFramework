@@ -17,7 +17,6 @@ public class BookingApiClient extends BaseApiClient {
 
     private static final String BOOKINGS_ENDPOINT = "/booking";
     private static final String PING_ENDPOINT = "/ping";
-    private static final String JSON_ACCEPT_HEADER = "application/json";
     private static final int HTTP_TEAPOT = 418;
     private static final int MAX_WRITE_RETRIES = 3;
     private static final long RETRY_DELAY_MS = 1_500L;
@@ -41,7 +40,7 @@ public class BookingApiClient extends BaseApiClient {
     public Response findBookingsByName(String firstName, String lastName) {
         logger.info("Searching bookings for firstname='{}', lastname='{}'", firstName, lastName);
         return given(getBaseSpec())
-                .header("Accept", JSON_ACCEPT_HEADER)
+                .accept(ContentType.JSON)
                 .queryParam("firstname", firstName)
                 .queryParam("lastname", lastName)
                 .when()
@@ -54,7 +53,7 @@ public class BookingApiClient extends BaseApiClient {
     public Response getBookingById(int bookingId) {
         logger.info("Fetching booking id={}", bookingId);
         return given(getBaseSpec())
-                .header("Accept", JSON_ACCEPT_HEADER)
+                .accept(ContentType.JSON)
                 .when()
                 .get(BOOKINGS_ENDPOINT + "/{bookingId}", bookingId)
                 .then()
@@ -66,7 +65,7 @@ public class BookingApiClient extends BaseApiClient {
         logger.info("Creating booking for guest='{} {}'", request.getFirstname(), request.getLastname());
         return executeWriteRequestWithRetry("create booking", () -> given(getBaseSpec())
                 .contentType(ContentType.JSON)
-                .header("Accept", JSON_ACCEPT_HEADER)
+                .accept(ContentType.JSON)
                 .body(request)
                 .when()
                 .post(BOOKINGS_ENDPOINT)
@@ -79,7 +78,7 @@ public class BookingApiClient extends BaseApiClient {
         logger.info("Fully updating booking id={} for guest='{} {}'", bookingId, request.getFirstname(), request.getLastname());
         return executeWriteRequestWithRetry("update booking", () -> given(getBaseSpec())
                 .contentType(ContentType.JSON)
-                .header("Accept", JSON_ACCEPT_HEADER)
+                .accept(ContentType.JSON)
                 .header("Cookie", "token=" + token)
                 .body(request)
                 .when()
@@ -93,7 +92,7 @@ public class BookingApiClient extends BaseApiClient {
         logger.info("Partially updating booking id={}", bookingId);
         return executeWriteRequestWithRetry("patch booking", () -> given(getBaseSpec())
                 .contentType(ContentType.JSON)
-                .header("Accept", JSON_ACCEPT_HEADER)
+                .accept(ContentType.JSON)
                 .header("Cookie", "token=" + token)
                 .body(request)
                 .when()
