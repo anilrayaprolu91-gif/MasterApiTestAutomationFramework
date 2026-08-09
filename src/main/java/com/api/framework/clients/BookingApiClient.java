@@ -21,6 +21,7 @@ public class BookingApiClient {
 
     private static final String BOOKINGS_ENDPOINT = "/booking";
     private static final String PING_ENDPOINT = "/ping";
+    private static final String JSON_ACCEPT_HEADER = "application/json";
     private static final int HTTP_TEAPOT = 418;
     private static final int MAX_WRITE_RETRIES = 3;
     private static final long RETRY_DELAY_MS = 1_500L;
@@ -29,15 +30,9 @@ public class BookingApiClient {
     private static final Logger logger = LogManager.getLogger(BookingApiClient.class);
 
     public BookingApiClient() {
-        this.restSpec =
-                new RestRequestSpecProvider("base.uri.restfulbooker");
+        this.restSpec = new RestRequestSpecProvider("base.uri.restfulbooker");
     }
 
-    /**
-     * Checks API availability.
-     *
-     * @return ping response
-     */
     @Step("GET Restful Booker ping")
     public Response ping() {
         logger.info("Calling Restful Booker ping endpoint");
@@ -49,18 +44,11 @@ public class BookingApiClient {
                 .extract().response();
     }
 
-    /**
-     * Searches bookings by first and last name.
-     *
-     * @param firstName booking first name filter
-     * @param lastName booking last name filter
-     * @return list response containing booking ids
-     */
     @Step("GET booking ids by firstname='{firstName}' and lastname='{lastName}'")
     public Response findBookingsByName(String firstName, String lastName) {
         logger.info("Searching bookings for firstname='{}', lastname='{}'", firstName, lastName);
         return given(restSpec.get())
-                .accept(ContentType.JSON)
+                .header("Accept", JSON_ACCEPT_HEADER)
                 .queryParam("firstname", firstName)
                 .queryParam("lastname", lastName)
                 .when()
@@ -69,35 +57,23 @@ public class BookingApiClient {
                 .extract().response();
     }
 
-    /**
-     * Retrieves a booking by id.
-     *
-     * @param bookingId booking identifier
-     * @return booking response
-     */
     @Step("GET booking by id={bookingId}")
     public Response getBookingById(int bookingId) {
         logger.info("Fetching booking id={}", bookingId);
         return given(restSpec.get())
-                .accept(ContentType.JSON)
+                .header("Accept", JSON_ACCEPT_HEADER)
                 .when()
                 .get(BOOKINGS_ENDPOINT + "/{bookingId}", bookingId)
                 .then()
                 .extract().response();
     }
 
-    /**
-     * Creates a new booking.
-     *
-     * @param request booking payload
-     * @return create booking response
-     */
     @Step("POST create booking for guest '{request.firstname} {request.lastname}'")
     public Response createBooking(BookingRequest request) {
         logger.info("Creating booking for guest='{} {}'", request.getFirstname(), request.getLastname());
         return executeWriteRequestWithRetry("create booking", () -> given(restSpec.get())
                 .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
+                .header("Accept", JSON_ACCEPT_HEADER)
                 .body(request)
                 .when()
                 .post(BOOKINGS_ENDPOINT)
@@ -105,20 +81,12 @@ public class BookingApiClient {
                 .extract().response());
     }
 
-    /**
-     * Fully updates an existing booking.
-     *
-     * @param bookingId booking identifier
-     * @param request updated booking payload
-     * @param token auth token
-     * @return update response
-     */
     @Step("PUT update booking id={bookingId}")
     public Response updateBooking(int bookingId, BookingRequest request, String token) {
         logger.info("Fully updating booking id={} for guest='{} {}'", bookingId, request.getFirstname(), request.getLastname());
         return executeWriteRequestWithRetry("update booking", () -> given(restSpec.get())
                 .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
+                .header("Accept", JSON_ACCEPT_HEADER)
                 .header("Cookie", "token=" + token)
                 .body(request)
                 .when()
@@ -127,20 +95,12 @@ public class BookingApiClient {
                 .extract().response());
     }
 
-    /**
-     * Partially updates an existing booking.
-     *
-     * @param bookingId booking identifier
-     * @param request partial update payload
-     * @param token auth token
-     * @return patch response
-     */
     @Step("PATCH booking id={bookingId}")
     public Response partiallyUpdateBooking(int bookingId, PartialBookingUpdateRequest request, String token) {
         logger.info("Partially updating booking id={}", bookingId);
         return executeWriteRequestWithRetry("patch booking", () -> given(restSpec.get())
                 .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
+                .header("Accept", JSON_ACCEPT_HEADER)
                 .header("Cookie", "token=" + token)
                 .body(request)
                 .when()
@@ -149,13 +109,6 @@ public class BookingApiClient {
                 .extract().response());
     }
 
-    /**
-     * Deletes an existing booking.
-     *
-     * @param bookingId booking identifier
-     * @param token auth token
-     * @return delete response
-     */
     @Step("DELETE booking id={bookingId}")
     public Response deleteBooking(int bookingId, String token) {
         logger.info("Deleting booking id={}", bookingId);
@@ -194,4 +147,3 @@ public class BookingApiClient {
         }
     }
 }
-
