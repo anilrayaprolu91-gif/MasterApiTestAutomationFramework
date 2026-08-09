@@ -1,10 +1,14 @@
 package com.api.framework.clients;
 
+import com.api.framework.http.RequestSpecProvider;
+import com.api.framework.http.RestRequestSpecProvider;
 import com.api.framework.models.request.BookingRequest;
 import com.api.framework.models.request.PartialBookingUpdateRequest;
 import io.qameta.allure.Step;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.function.Supplier;
 
@@ -13,7 +17,7 @@ import static io.restassured.RestAssured.given;
 /**
  * API client for the Restful Booker booking resources.
  */
-public class BookingApiClient extends BaseApiClient {
+public class BookingApiClient {
 
     private static final String BOOKINGS_ENDPOINT = "/booking";
     private static final String PING_ENDPOINT = "/ping";
@@ -21,8 +25,12 @@ public class BookingApiClient extends BaseApiClient {
     private static final int MAX_WRITE_RETRIES = 3;
     private static final long RETRY_DELAY_MS = 1_500L;
 
+    private final RequestSpecProvider restSpec;
+    private static final Logger logger = LogManager.getLogger(BookingApiClient.class);
+
     public BookingApiClient() {
-        super("base.uri.restfulbooker");
+        this.restSpec =
+                new RestRequestSpecProvider("base.uri.restfulbooker");
     }
 
     /**
@@ -33,7 +41,7 @@ public class BookingApiClient extends BaseApiClient {
     @Step("GET Restful Booker ping")
     public Response ping() {
         logger.info("Calling Restful Booker ping endpoint");
-        return given(getBaseSpec())
+        return given(restSpec.get())
                 .accept(ContentType.TEXT)
                 .when()
                 .get(PING_ENDPOINT)
@@ -51,7 +59,7 @@ public class BookingApiClient extends BaseApiClient {
     @Step("GET booking ids by firstname='{firstName}' and lastname='{lastName}'")
     public Response findBookingsByName(String firstName, String lastName) {
         logger.info("Searching bookings for firstname='{}', lastname='{}'", firstName, lastName);
-        return given(getBaseSpec())
+        return given(restSpec.get())
                 .accept(ContentType.JSON)
                 .queryParam("firstname", firstName)
                 .queryParam("lastname", lastName)
@@ -70,7 +78,7 @@ public class BookingApiClient extends BaseApiClient {
     @Step("GET booking by id={bookingId}")
     public Response getBookingById(int bookingId) {
         logger.info("Fetching booking id={}", bookingId);
-        return given(getBaseSpec())
+        return given(restSpec.get())
                 .accept(ContentType.JSON)
                 .when()
                 .get(BOOKINGS_ENDPOINT + "/{bookingId}", bookingId)
@@ -87,7 +95,7 @@ public class BookingApiClient extends BaseApiClient {
     @Step("POST create booking for guest '{request.firstname} {request.lastname}'")
     public Response createBooking(BookingRequest request) {
         logger.info("Creating booking for guest='{} {}'", request.getFirstname(), request.getLastname());
-        return executeWriteRequestWithRetry("create booking", () -> given(getBaseSpec())
+        return executeWriteRequestWithRetry("create booking", () -> given(restSpec.get())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
@@ -108,7 +116,7 @@ public class BookingApiClient extends BaseApiClient {
     @Step("PUT update booking id={bookingId}")
     public Response updateBooking(int bookingId, BookingRequest request, String token) {
         logger.info("Fully updating booking id={} for guest='{} {}'", bookingId, request.getFirstname(), request.getLastname());
-        return executeWriteRequestWithRetry("update booking", () -> given(getBaseSpec())
+        return executeWriteRequestWithRetry("update booking", () -> given(restSpec.get())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .header("Cookie", "token=" + token)
@@ -130,7 +138,7 @@ public class BookingApiClient extends BaseApiClient {
     @Step("PATCH booking id={bookingId}")
     public Response partiallyUpdateBooking(int bookingId, PartialBookingUpdateRequest request, String token) {
         logger.info("Partially updating booking id={}", bookingId);
-        return executeWriteRequestWithRetry("patch booking", () -> given(getBaseSpec())
+        return executeWriteRequestWithRetry("patch booking", () -> given(restSpec.get())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .header("Cookie", "token=" + token)
@@ -151,7 +159,7 @@ public class BookingApiClient extends BaseApiClient {
     @Step("DELETE booking id={bookingId}")
     public Response deleteBooking(int bookingId, String token) {
         logger.info("Deleting booking id={}", bookingId);
-        return executeWriteRequestWithRetry("delete booking", () -> given(getBaseSpec())
+        return executeWriteRequestWithRetry("delete booking", () -> given(restSpec.get())
                 .header("Cookie", "token=" + token)
                 .when()
                 .delete(BOOKINGS_ENDPOINT + "/{bookingId}", bookingId)

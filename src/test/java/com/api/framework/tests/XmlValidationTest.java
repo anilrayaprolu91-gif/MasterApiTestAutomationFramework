@@ -2,6 +2,7 @@ package com.api.framework.tests;
 
 import com.api.framework.base.BaseTest;
 import com.api.framework.clients.SoapApiClient;
+import com.api.framework.http.SoapRequestSpecProvider;
 import com.api.framework.utils.AllureAttachmentUtil;
 import com.api.framework.utils.XmlSchemaValidator;
 import io.qameta.allure.Description;
@@ -24,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * <p>Approach:
  * <ol>
- *   <li>Send a SOAP 1.1 request using {@link SoapApiClient}.</li>
+ *   <li>Send a SOAP 1.1 request using {@link SoapRequestSpecProvider}.</li>
  *   <li>Assert the HTTP response code is 200 (SOAP faults are still HTTP 200 or 500
  *       depending on the server; here we expect a successful response).</li>
  *   <li>Extract the raw XML response body.</li>

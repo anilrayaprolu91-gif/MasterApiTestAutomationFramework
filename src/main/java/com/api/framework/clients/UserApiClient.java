@@ -1,8 +1,13 @@
 package com.api.framework.clients;
 
+import com.api.framework.http.RequestSpecProvider;
+import com.api.framework.http.RestRequestSpecProvider;
+import com.api.framework.http.SoapRequestSpecProvider;
 import com.api.framework.models.request.CreateUserRequest;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static io.restassured.RestAssured.given;
 
@@ -13,12 +18,15 @@ import static io.restassured.RestAssured.given;
  * <p>JSONPlaceholder is a free, stable, unauthenticated REST API that requires no
  * API key — ideal for CI/CD pipelines and portfolio demonstrations.
  */
-public class UserApiClient extends BaseApiClient {
+public class UserApiClient {
 
     private static final String USERS_ENDPOINT = "/users";
+    private final RequestSpecProvider restSpec;
+    private static final Logger logger = LogManager.getLogger(UserApiClient.class);
 
     public UserApiClient() {
-        super("base.uri.jsonplaceholder");
+        this.restSpec =
+                new RestRequestSpecProvider("base.uri.jsonplaceholder");
     }
 
     /**
@@ -29,7 +37,7 @@ public class UserApiClient extends BaseApiClient {
     @Step("GET all users")
     public Response getUsers() {
         logger.info("Fetching all users");
-        return given(getBaseSpec())
+        return given(restSpec.get())
                 .when()
                 .get(USERS_ENDPOINT)
                 .then()
@@ -45,7 +53,7 @@ public class UserApiClient extends BaseApiClient {
     @Step("GET user by id={userId}")
     public Response getUserById(int userId) {
         logger.info("Fetching user id={}", userId);
-        return given(getBaseSpec())
+        return given(restSpec.get())
                 .when()
                 .get(USERS_ENDPOINT + "/{userId}", userId)
                 .then()
