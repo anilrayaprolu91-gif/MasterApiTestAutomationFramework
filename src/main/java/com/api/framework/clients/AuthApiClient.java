@@ -1,23 +1,33 @@
 package com.api.framework.clients;
 
 import com.api.framework.config.ConfigManager;
+import com.api.framework.http.RequestSpecProvider;
+import com.api.framework.http.RestRequestSpecProvider;
 import com.api.framework.models.request.AuthRequest;
 import com.api.framework.models.response.AuthResponse;
 import io.qameta.allure.Step;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static io.restassured.RestAssured.given;
 
 /**
  * API client for the Restful Booker authentication endpoint.
  */
-public class AuthApiClient extends BaseApiClient {
+public class AuthApiClient {
 
     private static final String AUTH_ENDPOINT = "/auth";
 
+
+
+    private final RequestSpecProvider restSpec;
+    private static final Logger logger = LogManager.getLogger(BookingApiClient.class);
+
     public AuthApiClient() {
-        super("base.uri.restfulbooker");
+        this.restSpec =
+                new RestRequestSpecProvider("base.uri.restfulbooker");
     }
 
     /**
@@ -45,7 +55,7 @@ public class AuthApiClient extends BaseApiClient {
     @Step("POST authenticate against Restful Booker for user '{request.username}'")
     public Response createToken(AuthRequest request) {
         logger.info("Requesting authentication token for Restful Booker user='{}'", request.getUsername());
-        return given(getBaseSpec())
+        return given(restSpec.get())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)

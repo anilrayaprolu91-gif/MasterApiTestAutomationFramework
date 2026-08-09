@@ -1,8 +1,12 @@
 package com.api.framework.clients;
 
+import com.api.framework.http.RequestSpecProvider;
+import com.api.framework.http.RestRequestSpecProvider;
 import com.api.framework.models.request.CreatePostRequest;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static io.restassured.RestAssured.given;
 
@@ -13,12 +17,15 @@ import static io.restassured.RestAssured.given;
  * <p>JSONPlaceholder is a free, stable, unauthenticated REST API widely used
  * for testing and prototyping.
  */
-public class PostApiClient extends BaseApiClient {
+public class PostApiClient  {
 
     private static final String POSTS_ENDPOINT = "/posts";
+    private final RequestSpecProvider restSpec;
+    private static final Logger logger = LogManager.getLogger(PostApiClient.class);
 
     public PostApiClient() {
-        super("base.uri.jsonplaceholder");
+        this.restSpec =
+                new RestRequestSpecProvider("base.uri.jsonplaceholder");
     }
 
     /**
@@ -30,7 +37,7 @@ public class PostApiClient extends BaseApiClient {
     @Step("POST create post — title='{request.title}', userId={request.userId}")
     public Response createPost(CreatePostRequest request) {
         logger.info("Creating post — title='{}', userId={}", request.getTitle(), request.getUserId());
-        return given(getBaseSpec())
+        return given(restSpec.get())
                 .body(request)
                 .when()
                 .post(POSTS_ENDPOINT)
@@ -47,7 +54,7 @@ public class PostApiClient extends BaseApiClient {
     @Step("GET post by id={postId}")
     public Response getPostById(int postId) {
         logger.info("Fetching post id={}", postId);
-        return given(getBaseSpec())
+        return given(restSpec.get())
                 .when()
                 .get(POSTS_ENDPOINT + "/{postId}", postId)
                 .then()
@@ -64,7 +71,7 @@ public class PostApiClient extends BaseApiClient {
     @Step("DELETE post id={postId}")
     public Response deletePost(int postId) {
         logger.info("Deleting post id={}", postId);
-        return given(getBaseSpec())
+        return given(restSpec.get())
                 .when()
                 .delete(POSTS_ENDPOINT + "/{postId}", postId)
                 .then()
