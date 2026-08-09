@@ -15,29 +15,26 @@
     </description>
 
     <properties>
-        <!-- Java -->
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Core Dependency Versions -->
         <rest-assured.version>5.4.0</rest-assured.version>
         <testng.version>7.9.0</testng.version>
         <allure.version>2.27.0</allure.version>
         <jackson.version>2.17.0</jackson.version>
         <lombok.version>1.18.32</lombok.version>
         <log4j2.version>2.23.1</log4j2.version>
+        <slf4j.version>2.0.13</slf4j.version>
         <assertj.version>3.25.3</assertj.version>
 
-        <!-- Plugin Versions -->
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <allure-maven.version>2.13.0</allure-maven.version>
         <aspectj.version>1.9.22</aspectj.version>
     </properties>
 
-    <!-- Allure BOM manages all allure artifact versions consistently -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -51,7 +48,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- ==================== REST ASSURED ==================== -->
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
@@ -68,7 +64,6 @@
             <version>${rest-assured.version}</version>
         </dependency>
 
-        <!-- ==================== TESTNG ==================== -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -76,7 +71,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- ==================== ALLURE ==================== -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-java-commons</artifactId>
@@ -91,7 +85,6 @@
             <artifactId>allure-rest-assured</artifactId>
         </dependency>
 
-        <!-- ==================== JACKSON (JSON Serialization) ==================== -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -103,7 +96,6 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <!-- ==================== LOMBOK ==================== -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -111,7 +103,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- ==================== LOG4J2 ==================== -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -127,8 +118,12 @@
             <artifactId>log4j-slf4j2-impl</artifactId>
             <version>${log4j2.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
 
-        <!-- ==================== ASSERTJ ==================== -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
