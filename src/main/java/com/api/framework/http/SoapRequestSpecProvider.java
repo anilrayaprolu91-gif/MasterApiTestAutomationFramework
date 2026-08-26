@@ -1,12 +1,13 @@
 package com.api.framework.http;
 
+import com.api.framework.config.ConfigManager;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.specification.RequestSpecification;
 import io.qameta.allure.restassured.AllureRestAssured;
-import com.api.framework.config.ConfigManager;
+import com.api.framework.config.PropertiesFileSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,16 +26,6 @@ public class SoapRequestSpecProvider implements RequestSpecProvider {
 
     private static final Logger logger = LogManager.getLogger(SoapRequestSpecProvider.class);
 
-    /** Template for a SOAP 1.1 NumberToWords envelope. */
-//    private static final String NUMBER_TO_WORDS_ENVELOPE =
-//            "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-//                    + "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">"
-//                    + "  <soap:Body>"
-//                    + "    <NumberToWords xmlns=\"http://www.dataaccess.com/webservicesserver/\">"
-//                    + "      <ubiNum>%d</ubiNum>"
-//                    + "    </NumberToWords>"
-//                    + "  </soap:Body>"
-//                    + "</soap:Envelope>";
 
     private final RequestSpecification soapSpec;
 
@@ -57,25 +48,6 @@ public class SoapRequestSpecProvider implements RequestSpecProvider {
         logger.debug("SOAP client initialised — baseUri='{}'", baseUri);
     }
 
-//    /**
-//     * Calls the {@code NumberToWords} SOAP operation.
-//     *
-//     * @param number the unsigned integer to convert to a word representation
-//     * @return the full HTTP response containing the SOAP envelope
-//     */
-//    @Step("SOAP NumberToWords — convert {number} to words")
-//    public Response convertNumberToWords(long number) {
-//        String soapBody = String.format(NUMBER_TO_WORDS_ENVELOPE, number);
-//        logger.info("Invoking NumberToWords SOAP operation with number={}", number);
-//
-//        return given(soapSpec)
-//                .header("SOAPAction", "\"http://www.dataaccess.com/webservicesserver/NumberToWords\"")
-//                .body(soapBody)
-//                .when()
-//                .post("/NumberConversion.wso")
-//                .then()
-//                .extract().response();
-//    }
 
     @Override
     public RequestSpecification get() {

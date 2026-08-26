@@ -1,6 +1,7 @@
 package com.api.framework.base;
 
 import com.api.framework.config.ConfigManager;
+import com.api.framework.config.PropertiesFileSource;
 import io.restassured.RestAssured;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;

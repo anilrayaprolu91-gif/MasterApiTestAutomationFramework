@@ -1,16 +1,9 @@
 package com.api.framework.clients;
 
-import com.api.framework.config.ConfigManager;
 import com.api.framework.http.RequestSpecProvider;
 import com.api.framework.http.SoapRequestSpecProvider;
 import io.qameta.allure.Step;
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.filter.log.LogDetail;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
