@@ -7,7 +7,6 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.specification.RequestSpecification;
 import io.qameta.allure.restassured.AllureRestAssured;
-import com.api.framework.config.PropertiesFileSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,7 +31,7 @@ public class SoapRequestSpecProvider implements RequestSpecProvider {
     /**
      * Constructs a SOAP client wired to {@code base.uri.soap} from config.properties.
      */
-    public SoapRequestSpecProvider() {
+    public SoapRequestSpecProvider(String baseUri) {
         String baseUri = ConfigManager.getInstance().getProperty("base.uri.soap");
 
         soapSpec = new RequestSpecBuilder()

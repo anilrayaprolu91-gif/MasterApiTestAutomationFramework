@@ -3,6 +3,9 @@ package com.api.framework.tests;
 import com.api.framework.base.BaseTest;
 import com.api.framework.clients.AuthApiClient;
 import com.api.framework.clients.BookingApiClient;
+import com.api.framework.http.ApiExecutor;
+import com.api.framework.http.RequestSpecProvider;
+import com.api.framework.http.RestRequestSpecProvider;
 import com.api.framework.models.request.BookingDates;
 import com.api.framework.models.request.BookingRequest;
 import com.api.framework.models.response.AuthResponse;
@@ -52,10 +55,18 @@ public class RestfulBookerApiTest extends BaseTest {
     static BookingRequest sharedBookingRequest;
     static BookingCreationResponse sharedBookingCreationResponse;
 
+    RequestSpecProvider requestSpecProvider =
+            new RestRequestSpecProvider(
+                    "base.uri.restfulbooker"
+            );
+
+    ApiExecutor apiExecutor ;
+
+
     @BeforeClass
     public void setUp() {
         authApiClient = new AuthApiClient();
-        bookingApiClient = new BookingApiClient();
+        bookingApiClient = new BookingApiClient(apiExecutor);
         authToken = authApiClient.createTokenValue();
         sharedBookingRequest = buildUniqueBookingRequest();
         sharedBookingCreationResponse = createSharedBooking(sharedBookingRequest);

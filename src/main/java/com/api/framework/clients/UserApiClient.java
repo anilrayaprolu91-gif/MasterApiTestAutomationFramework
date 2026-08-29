@@ -1,10 +1,9 @@
 package com.api.framework.clients;
 
-import com.api.framework.http.RequestSpecProvider;
-import com.api.framework.http.RestRequestSpecProvider;
-import com.api.framework.http.SoapRequestSpecProvider;
+import com.api.framework.http.*;
 import com.api.framework.models.request.CreateUserRequest;
 import io.qameta.allure.Step;
+import io.restassured.http.Method;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,13 +20,17 @@ import static io.restassured.RestAssured.given;
 public class UserApiClient {
 
     private static final String USERS_ENDPOINT = "/users";
-    private final RequestSpecProvider restSpec;
     private static final Logger logger = LogManager.getLogger(UserApiClient.class);
 
-    public UserApiClient() {
-        this.restSpec =
-                new RestRequestSpecProvider("base.uri.jsonplaceholder");
-    }
+//    public UserApiClient() {
+//        this.restSpec =
+//                new RestRequestSpecProvider("base.uri.jsonplaceholder");
+//    }
+private final ApiExecutor apiExecutor;
+
+     public UserApiClient(ApiExecutor apiExecutor) {
+         this.apiExecutor = apiExecutor;
+     }
 
     /**
      * Retrieves all users (JSONPlaceholder returns all 10 users in a single array).
@@ -37,11 +40,13 @@ public class UserApiClient {
     @Step("GET all users")
     public Response getUsers() {
         logger.info("Fetching all users");
-        return given(restSpec.get())
-                .when()
-                .get(USERS_ENDPOINT)
-                .then()
-                .extract().response();
+//        return given(restSpec.get())
+//                .when()
+//                .get(USERS_ENDPOINT)
+//                .then()
+//                .extract().response();
+//
+        return apiExecutor.execute(ApiRequest.builder(Method.GET, USERS_ENDPOINT).build());
     }
 
     /**
@@ -53,10 +58,15 @@ public class UserApiClient {
     @Step("GET user by id={userId}")
     public Response getUserById(int userId) {
         logger.info("Fetching user id={}", userId);
-        return given(restSpec.get())
-                .when()
-                .get(USERS_ENDPOINT + "/{userId}", userId)
-                .then()
-                .extract().response();
+//        return given(restSpec.get())
+//                .when()
+//                .get(USERS_ENDPOINT + "/{userId}", userId)
+//                .then()
+//                .extract().response();
+//
+//
+        return apiExecutor.execute(ApiRequest.builder(Method.GET, USERS_ENDPOINT + "/{userId}")
+                .pathParam("userId", userId)
+                .build());
     }
 }
