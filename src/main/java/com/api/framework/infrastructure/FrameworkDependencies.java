@@ -1,15 +1,17 @@
 package com.api.framework.infrastructure;
 
+import com.api.framework.config.ConfigManager;
 import com.api.framework.factory.ApiClientFactory;
 import com.api.framework.http.*;
+import com.api.framework.services.AuthTokenService;
 
-public class FrameworkDependencies {
+public  class FrameworkDependencies {
 
     private final ApiExecutor restfulBookerExecutor;
-    private final ApiExecutor bankingExecutor;
-    private final ApiExecutor customerExecutor;
+    private final ApiExecutor soapExecutor;
 
-    private final ApiExecutor customerSoapExecutor;
+    private final ApiExecutor jsonPlaceHolderExecutor;
+    private final AuthTokenService authTokenService;
 
     private final ApiClientFactory apiClientFactory;
 
@@ -17,20 +19,21 @@ public class FrameworkDependencies {
         return apiClientFactory;
     }
 
-    public ApiExecutor getCustomerSoapExecutor() {
-        return customerSoapExecutor;
+    public ApiExecutor getJsonPlaceHolderExecutor() {
+        return jsonPlaceHolderExecutor;
     }
 
-    public ApiExecutor getCustomerExecutor() {
-        return customerExecutor;
-    }
+
 
     public ApiExecutor getRestfulBookerExecutor() {
         return restfulBookerExecutor;
     }
 
-    public ApiExecutor getBankingExecutor() {
-        return bankingExecutor;
+
+
+
+    public AuthTokenService getAuthTokenService() {
+        return authTokenService;
     }
 
     public FrameworkDependencies() {
@@ -40,34 +43,35 @@ public class FrameworkDependencies {
                         "base.uri.restfulbooker"
                 );
 
-        RequestSpecProvider bankingSpec =
+        RequestSpecProvider jsonPlaceHolderSpec =
                 new RestRequestSpecProvider(
-                        "base.uri.banking"
+                        "base.uri.jsonplaceholder"
                 );
 
-        RequestSpecProvider customerSpec =
-                new RestRequestSpecProvider(
-                        "base.uri.customer"
-                );
 
-        RequestSpecProvider customerSoapSpec =
-                new SoapRequestSpecProvider(
-                        "base.uri.customer.soap"
-                );
+        RequestSpecProvider soapSpec = new SoapRequestSpecProvider("base.uri.soap");
 
         restfulBookerExecutor =
                 new RestAssuredApiExecutor(restfulBookerSpec);
 
-        bankingExecutor =
-                new RestAssuredApiExecutor(bankingSpec);
+       jsonPlaceHolderExecutor =
+                new RestAssuredApiExecutor(jsonPlaceHolderSpec);
 
-        customerExecutor =
-                new RestAssuredApiExecutor(customerSpec);
 
-        customerSoapExecutor =
-                new RestAssuredApiExecutor(customerSoapSpec);
+
+        soapExecutor =
+                new RestAssuredApiExecutor(soapSpec);
 
         apiClientFactory =
                 new ApiClientFactory(this);
+
+        this.authTokenService =
+                new AuthTokenService(
+                        apiClientFactory.createAuthApiClient()
+                );
+    }
+
+    public ApiExecutor getSoapExecutor() {
+        return soapExecutor;
     }
 }

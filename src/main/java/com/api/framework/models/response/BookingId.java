@@ -18,6 +18,6 @@ import lombok.NoArgsConstructor;
 public class BookingId {
 
     @JsonProperty("bookingid")
-    private int bookingid;
+    private Integer bookingid;
 }
 

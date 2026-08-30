@@ -1,9 +1,6 @@
 package com.api.framework.factory;
 
-import com.api.framework.clients.AuthApiClient;
-import com.api.framework.clients.BookingApiClient;
-import com.api.framework.clients.SoapApiClient;
-import com.api.framework.clients.UserApiClient;
+import com.api.framework.clients.*;
 import com.api.framework.http.ApiExecutor;
 import com.api.framework.http.RestAssuredApiExecutor;
 import com.api.framework.infrastructure.FrameworkDependencies;
@@ -27,7 +24,7 @@ public class ApiClientFactory {
     public UserApiClient createUserApiClient() {
 
         return new UserApiClient(
-                dependencies.getRestfulBookerExecutor()
+                dependencies.getJsonPlaceHolderExecutor()
         );
     }
 
@@ -35,6 +32,20 @@ public class ApiClientFactory {
 
         return new AuthApiClient(
                 dependencies.getRestfulBookerExecutor()
+        );
+    }
+
+    public SoapApiClient createSoapApiClient() {
+
+        return new SoapApiClient(
+                dependencies.getSoapExecutor()
+        );
+    }
+
+    public PostApiClient createPostApiClient() {
+
+        return new PostApiClient(
+                dependencies.getJsonPlaceHolderExecutor()
         );
     }
 }

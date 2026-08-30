@@ -31,9 +31,12 @@ public class SoapRequestSpecProvider implements RequestSpecProvider {
     /**
      * Constructs a SOAP client wired to {@code base.uri.soap} from config.properties.
      */
-    public SoapRequestSpecProvider(String baseUri) {
-        String baseUri = ConfigManager.getInstance().getProperty("base.uri.soap");
+    public SoapRequestSpecProvider(String baseUriConfigKey) {
 
+
+        String baseUri =
+                ConfigManager.getInstance()
+                        .getProperty(baseUriConfigKey);
         soapSpec = new RequestSpecBuilder()
                 .setBaseUri(baseUri)
                 // SOAP 1.1 mandates "text/xml" as the Content-Type; "application/xml" causes HTTP 415.

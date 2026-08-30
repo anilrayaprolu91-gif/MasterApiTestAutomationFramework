@@ -24,6 +24,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.api.framework.tests.RestfulBookerApiTest.CREATE_BOOKING_RESPONSE_SCHEMA;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,15 +43,30 @@ public class RestfulBookerE2ETest extends BaseTest {
     private static final File BOOKING_IDS_RESPONSE_SCHEMA =
             new File("src/test/resources/schemas/restfulbooker-booking-ids-response-schema.json");
 
-    private BookingApiClient bookingApiClient;
+    private String authToken;
+    private BookingRequest sharedBookingRequest;
+    private BookingCreationResponse sharedBookingCreationResponse;
+
 
     @BeforeClass
     public void setUp() {
-        bookingApiClient = new BookingApiClient();
-        assertThat(RestfulBookerApiTest.sharedBookingCreationResponse)
-                .as("RestfulBookerApiTest must create the shared booking before the E2E suite starts")
-                .isNotNull();
+
+        authToken = authService.getToken();
+
+        sharedBookingRequest =
+                buildUniqueBookingRequest();
+
+        sharedBookingCreationResponse =
+                createSharedBooking(sharedBookingRequest);
     }
+
+
+//    @BeforeClass
+//    public void setUp() {
+//        assertThat(RestfulBookerApiTest.sharedBookingCreationResponse)
+//                .as("RestfulBookerApiTest must create the shared booking before the E2E suite starts")
+//                .isNotNull();
+//    }
 
     @Test(description = "Full booking lifecycle should succeed end-to-end on Restful Booker")
     @Severity(SeverityLevel.BLOCKER)
@@ -64,7 +80,7 @@ public class RestfulBookerE2ETest extends BaseTest {
             6) verify it is no longer retrievable.
             """)
     public void bookingLifecycle_shouldPassEndToEnd() {
-        String token = RestfulBookerApiTest.authToken;
+        String token = authService.getToken();
         BookingRequest originalRequest = RestfulBookerApiTest.sharedBookingRequest;
         int bookingId = RestfulBookerApiTest.sharedBookingCreationResponse.getBookingid();
 
@@ -152,7 +168,38 @@ public class RestfulBookerE2ETest extends BaseTest {
                 .as("Deleted booking should no longer be retrievable")
                 .isEqualTo(HttpStatus.SC_NOT_FOUND);
     }
+    private BookingRequest buildUniqueBookingRequest() {
+        LocalDate today = LocalDate.now();
 
+        return BookingRequest.builder()
+                .firstname("QAeabcf")
+                .lastname("Candidateabcf")
+                .totalprice(250)
+                .depositpaid(true)
+                .bookingdates(BookingDates.builder()
+                        .checkin(today.plusDays(7).toString())
+                        .checkout(today.plusDays(10).toString())
+                        .build())
+                .additionalneeds("Breakfast")
+                .build();
+    }
+
+
+    private BookingCreationResponse createSharedBooking(BookingRequest request) {
+        Response response = bookingApiClient.createBooking(request);
+
+        assertThat(response.getStatusCode())
+                .as("Shared POST /booking should return HTTP 200")
+                .isEqualTo(HttpStatus.SC_OK);
+
+        response.then().assertThat().body(matchesJsonSchema(CREATE_BOOKING_RESPONSE_SCHEMA));
+
+        BookingCreationResponse bookingCreationResponse = response.as(BookingCreationResponse.class);
+        assertThat(bookingCreationResponse.getBookingid())
+                .as("Shared booking id must be positive")
+                .isPositive();
+        return bookingCreationResponse;
+    }
 
     private void assertBookingMatchesRequest(BookingResponse actual, BookingRequest expected) {
         assertThat(actual.getFirstname()).isEqualTo(expected.getFirstname());

@@ -1,12 +1,10 @@
 package com.api.framework.base;
 
-import com.api.framework.clients.AuthApiClient;
-import com.api.framework.clients.BookingApiClient;
-import com.api.framework.clients.UserApiClient;
+import com.api.framework.clients.*;
 import com.api.framework.config.ConfigManager;
-import com.api.framework.config.PropertiesFileSource;
 import com.api.framework.factory.ApiClientFactory;
 import com.api.framework.infrastructure.FrameworkDependencies;
+import com.api.framework.services.AuthTokenService;
 import io.restassured.RestAssured;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -42,6 +40,9 @@ public abstract class BaseTest {
 
     protected UserApiClient userApiClient;
     protected AuthApiClient authApiClient;
+    protected AuthTokenService authService;
+    protected PostApiClient postApiClient;
+    protected SoapApiClient soapApiClient;
 
     /**
      * Suite-level setup that runs exactly once, before any test method in any class.
@@ -89,6 +90,14 @@ public abstract class BaseTest {
 
         authApiClient =
                 clientFactory.createAuthApiClient();
+
+        authService =
+                frameworkDependencies.getAuthTokenService();
+        postApiClient =
+                clientFactory.createPostApiClient();
+
+        soapApiClient =
+                clientFactory.createSoapApiClient();
     }
 
 }

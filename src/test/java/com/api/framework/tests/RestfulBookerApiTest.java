@@ -44,14 +44,14 @@ public class RestfulBookerApiTest extends BaseTest {
             new File("src/test/resources/schemas/restfulbooker-auth-response-schema.json");
     private static final File BOOKING_RESPONSE_SCHEMA =
             new File("src/test/resources/schemas/restfulbooker-booking-response-schema.json");
-    private static final File CREATE_BOOKING_RESPONSE_SCHEMA =
+    static final File CREATE_BOOKING_RESPONSE_SCHEMA =
             new File("src/test/resources/schemas/restfulbooker-create-booking-response-schema.json");
     private static final File BOOKING_IDS_RESPONSE_SCHEMA =
             new File("src/test/resources/schemas/restfulbooker-booking-ids-response-schema.json");
 
-    static AuthApiClient authApiClient;
-    static BookingApiClient bookingApiClient;
-    static String authToken;
+
+
+    private String authToken;
     static BookingRequest sharedBookingRequest;
     static BookingCreationResponse sharedBookingCreationResponse;
 
@@ -65,11 +65,14 @@ public class RestfulBookerApiTest extends BaseTest {
 
     @BeforeClass
     public void setUp() {
-        authApiClient = new AuthApiClient();
-        bookingApiClient = new BookingApiClient(apiExecutor);
-        authToken = authApiClient.createTokenValue();
-        sharedBookingRequest = buildUniqueBookingRequest();
-        sharedBookingCreationResponse = createSharedBooking(sharedBookingRequest);
+
+        authToken = authService.getToken();
+
+        sharedBookingRequest =
+                buildUniqueBookingRequest();
+
+        sharedBookingCreationResponse =
+                createSharedBooking(sharedBookingRequest);
     }
 
 
@@ -94,7 +97,7 @@ public class RestfulBookerApiTest extends BaseTest {
     @Severity(SeverityLevel.BLOCKER)
     @Description("Verifies that the documented public demo credentials produce a valid authentication token.")
     public void authenticate_shouldReturnTokenAndMatchSchema() {
-        Response response = authApiClient.createToken();
+        Response response = authService.getTokenResponse();
 
         assertThat(response.getStatusCode())
                 .as("POST /auth should return HTTP 200")
@@ -176,8 +179,10 @@ public class RestfulBookerApiTest extends BaseTest {
                 .isEqualTo(HttpStatus.SC_OK);
 
         searchResponse.then().assertThat().body(matchesJsonSchema(BOOKING_IDS_RESPONSE_SCHEMA));
-
-        List<BookingId> bookingIds = searchResponse.jsonPath().getList("", BookingId.class);
+        List<BookingId> bookingIds =
+                searchResponse.jsonPath()
+                        .getList("", BookingId.class);
+//        List<BookingId> bookingIds = searchResponse.jsonPath().getList("", BookingId.class);
         assertThat(bookingIds)
                 .as("Name-based booking search should return at least one result")
                 .isNotEmpty();
