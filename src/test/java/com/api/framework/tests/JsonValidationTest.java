@@ -40,14 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Owner("API Automation Team")
 public class JsonValidationTest extends BaseTest {
 
-    private UserApiClient userApiClient;
-    private PostApiClient postApiClient;
-
-    @BeforeClass
-    public void setUp() {
-        userApiClient = new UserApiClient();
-        postApiClient = new PostApiClient();
-    }
 
     // =========================================================================
     //  Test: List All Users — GET /users

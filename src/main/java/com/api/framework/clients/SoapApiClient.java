@@ -1,8 +1,11 @@
 package com.api.framework.clients;
 
+import com.api.framework.http.ApiExecutor;
+import com.api.framework.http.ApiRequest;
 import com.api.framework.http.RequestSpecProvider;
 import com.api.framework.http.SoapRequestSpecProvider;
 import io.qameta.allure.Step;
+import io.restassured.http.Method;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,10 +25,11 @@ import static io.restassured.RestAssured.given;
  */
 public class SoapApiClient {
 
+    private final ApiExecutor apiExecutor;
 
 
     private static final Logger logger = LogManager.getLogger(SoapApiClient.class);
-    private final RequestSpecProvider soapSpec;
+//    private final RequestSpecProvider soapSpec;
 
     /** Template for a SOAP 1.1 NumberToWords envelope. */
    private static final String NUMBER_TO_WORDS_ENVELOPE =
@@ -38,9 +42,10 @@ public class SoapApiClient {
                     + "  </soap:Body>"
                   + "</soap:Envelope>";
 
-    public SoapApiClient() {
-        this.soapSpec =
-                new SoapRequestSpecProvider();
+    public SoapApiClient(ApiExecutor apiExecutor) {
+        this.apiExecutor = apiExecutor;
+//        this.soapSpec =
+//                new SoapRequestSpecProvider();
     }
 
 
@@ -55,13 +60,22 @@ public class SoapApiClient {
         String soapBody = String.format(NUMBER_TO_WORDS_ENVELOPE, number);
         logger.info("Invoking NumberToWords SOAP operation with number={}", number);
 
-        return given(soapSpec.get())
-                .header("SOAPAction", "\"http://www.dataaccess.com/webservicesserver/NumberToWords\"")
-                .body(soapBody)
-                .when()
-                .post("/NumberConversion.wso")
-                .then()
-                .extract().response();
+//        return given(soapSpec.get())
+//                .header("SOAPAction", "\"http://www.dataaccess.com/webservicesserver/NumberToWords\"")
+//                .body(soapBody)
+//                .when()
+//                .post("/NumberConversion.wso")
+//                .then()
+//                .extract().response();
+
+
+
+
+        return apiExecutor.execute(
+                ApiRequest.builder(Method.POST, "/NumberConversion.wso").header("SOAPAction", "\"http://www.dataaccess.com/webservicesserver/NumberToWords\"")
+                        .body(soapBody)
+                        .build()
+        );
     }
 
 

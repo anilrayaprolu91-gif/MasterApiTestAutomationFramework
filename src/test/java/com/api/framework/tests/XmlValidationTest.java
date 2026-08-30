@@ -43,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Owner("API Automation Team")
 public class XmlValidationTest extends BaseTest {
 
-    private SoapApiClient soapApiClient;
 
     /** XPath to the text result inside the SOAP response body (GPath syntax). */
     private static final String RESULT_XPATH =
@@ -52,10 +51,7 @@ public class XmlValidationTest extends BaseTest {
     /** Classpath path to the XSD that validates the NumberToWordsResponse element. */
     private static final String RESPONSE_XSD_PATH = "schemas/number-to-words-response.xsd";
 
-    @BeforeClass
-    public void setUp() {
-        soapApiClient = new SoapApiClient();
-    }
+
 
     // =========================================================================
     //  Test: NumberToWords — happy-path with data-driven inputs

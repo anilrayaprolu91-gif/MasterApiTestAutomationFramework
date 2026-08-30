@@ -10,24 +10,21 @@ public class AuthTokenService {
 
 
     private final AuthApiClient authApiClient;
-    private final ConfigManager configManager;
 
     public AuthTokenService(
-            AuthApiClient authApiClient,
-            ConfigManager configManager) {
+            AuthApiClient authApiClient) {
 
         this.authApiClient = authApiClient;
-        this.configManager = configManager;
     }
 
     public String getToken() {
 
         AuthRequest request = AuthRequest.builder()
                 .username(
-                        configManager.getProperty(
+                        ConfigManager.getInstance().getProperty(
                                 "restfulbooker.username"))
                 .password(
-                        configManager.getProperty(
+                        ConfigManager.getInstance().getProperty(
                                 "restfulbooker.password"))
                 .build();
 
@@ -38,5 +35,21 @@ public class AuthTokenService {
                 response.as(AuthResponse.class);
 
         return authResponse.getToken();
+    }
+
+
+    public Response getTokenResponse() {
+
+        AuthRequest request = AuthRequest.builder()
+                .username(
+                        ConfigManager.getInstance().getProperty(
+                                "restfulbooker.username"))
+                .password(
+                        ConfigManager.getInstance().getProperty(
+                                "restfulbooker.password"))
+                .build();
+
+
+        return authApiClient.createToken(request);
     }
 }

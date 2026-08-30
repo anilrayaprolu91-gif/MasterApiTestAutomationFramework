@@ -1,12 +1,16 @@
 package com.api.framework.base;
 
+import com.api.framework.clients.*;
 import com.api.framework.config.ConfigManager;
-import com.api.framework.config.PropertiesFileSource;
+import com.api.framework.factory.ApiClientFactory;
+import com.api.framework.infrastructure.FrameworkDependencies;
+import com.api.framework.services.AuthTokenService;
 import io.restassured.RestAssured;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 
 /**
@@ -28,6 +32,17 @@ import org.testng.annotations.BeforeSuite;
 public abstract class BaseTest {
 
     protected final Logger logger = LogManager.getLogger(getClass());
+
+
+    protected FrameworkDependencies frameworkDependencies;
+
+    protected BookingApiClient bookingApiClient;
+
+    protected UserApiClient userApiClient;
+    protected AuthApiClient authApiClient;
+    protected AuthTokenService authService;
+    protected PostApiClient postApiClient;
+    protected SoapApiClient soapApiClient;
 
     /**
      * Suite-level setup that runs exactly once, before any test method in any class.
@@ -57,5 +72,33 @@ public abstract class BaseTest {
         logger.info("REST Assured configured — connectionTimeout={}ms, socketTimeout={}ms",
                 connectionTimeout, socketTimeout);
     }
+
+    @BeforeClass
+    public void initializeFramework() {
+
+        frameworkDependencies =
+                new FrameworkDependencies();
+
+        ApiClientFactory clientFactory =
+                frameworkDependencies.getApiClientFactory();
+
+        bookingApiClient =
+                clientFactory.createBookingApiClient();
+
+        userApiClient =
+                clientFactory.createUserApiClient();
+
+        authApiClient =
+                clientFactory.createAuthApiClient();
+
+        authService =
+                frameworkDependencies.getAuthTokenService();
+        postApiClient =
+                clientFactory.createPostApiClient();
+
+        soapApiClient =
+                clientFactory.createSoapApiClient();
+    }
+
 }
 

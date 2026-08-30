@@ -1,7 +1,6 @@
 package com.api.framework.http;
 
 import com.api.framework.config.ConfigManager;
-import com.api.framework.config.PropertiesFileSource;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
