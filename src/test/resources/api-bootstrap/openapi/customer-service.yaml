@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info:
+  title: Customer Service
+  version: 1.0.0
+servers:
+  - url: https://example.test
+paths:
+  /customers:
+    get:
+      operationId: listCustomers
+      summary: List customers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+    post:
+      operationId: createCustomer
+      summary: Create customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomer'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+  /customers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getCustomer
+      summary: Get customer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+    delete:
+      operationId: deleteCustomer
+      summary: Delete customer
+      responses:
+        '204':
+          description: Deleted
+components:
+  schemas:
+    CreateCustomer:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+    Customer:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
